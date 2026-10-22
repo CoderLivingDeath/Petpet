@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/prisma/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id    String  @id @default(uuid(7))
+  name  String?
+
+  credentials Credential[]
+}
+
+model AuthProvider {
+  id       String  @id @default(uuid(7))
+  name     String  @unique
+  isActive Boolean @default(true)
+
+  credentials Credential[]
+}
+
+model Credential {
+  id String @id @default(uuid(7))
+
+  // локальный вход (email + пароль) — опционально
+  email        String?
+  login        String?
+  passwordHash String? @map("password_hash")
+
+  // внешний провайдер — опционально
+  providerId        String? @map("provider_id")
+  providerAccountId String? @map("provider_account_id") // sub/id у провайдера
+  provider AuthProvider? @relation(fields: [providerId], references: [id], onDelete: Restrict)
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([providerId, providerAccountId])
+  @@unique([providerId, email])
+  @@index([userId])
+}
