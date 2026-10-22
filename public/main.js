@@ -55,7 +55,7 @@ fileInput?.addEventListener("change", async () => {
 });
 
 speedInput?.addEventListener("change", () => {
-	const value = Number(speedInput.value);
+	const value = Number(speedInput.value) / 100;
 
 	if (Number.isFinite(value) && value > 0) {
 		context.speed = value;
